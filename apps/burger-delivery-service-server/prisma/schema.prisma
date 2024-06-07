@@ -1,0 +1,85 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  address     String?
+  createdAt   DateTime @default(now())
+  email       String?
+  firstName   String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastName    String?
+  orders      Order[]
+  phoneNumber String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  burger       Burger?          @relation(fields: [burgerId], references: [id])
+  burgerId     String?          @db.ObjectId
+  createdAt    DateTime         @default(now())
+  customer     Customer?        @relation(fields: [customerId], references: [id])
+  customerId   String?          @db.ObjectId
+  deliveries   Delivery[]       @relation(name: "DeliveriesOnOrder")
+  delivery     Delivery?        @relation(name: "DeliveryOnOrders", fields: [deliveryId], references: [id])
+  deliveryId   String?          @db.ObjectId
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  mapTrackings MapTracking[]
+  orderDate    DateTime?
+  status       EnumOrderStatus?
+  updatedAt    DateTime         @updatedAt
+}
+
+model Burger {
+  createdAt   DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  ingredients String?
+  name        String?
+  orders      Order[]
+  price       Float?
+  updatedAt   DateTime @updatedAt
+}
+
+model MapTracking {
+  createdAt DateTime  @default(now())
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  location  Json?
+  order     Order?    @relation(fields: [orderId], references: [id])
+  orderId   String?   @db.ObjectId
+  timestamp DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+model Delivery {
+  createdAt      DateTime                    @default(now())
+  deliveryDate   DateTime?
+  deliveryPerson String?
+  deliveryStatus EnumDeliveryDeliveryStatus?
+  id             String                      @id @default(auto()) @map("_id") @db.ObjectId
+  order          Order?                      @relation(name: "DeliveriesOnOrder", fields: [orderId], references: [id])
+  orderId        String?                     @db.ObjectId
+  orders         Order[]                     @relation(name: "DeliveryOnOrders")
+  updatedAt      DateTime                    @updatedAt
+}
+
+model AdminPanel {
+  adminEmail    String?
+  adminName     String?
+  adminPassword String?
+  createdAt     DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt     DateTime @updatedAt
+}
+
+enum EnumOrderStatus {
+  Option1
+}
+
+enum EnumDeliveryDeliveryStatus {
+  Option1
+}
